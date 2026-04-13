@@ -837,7 +837,7 @@ function tools(client) {
       }, required: ['opId','nazev'] },
       handler: async (a) => {
         const body = R.body({ name: a.nazev, count: a.mnozstvi, price: a.cena, unit: a.jednotka,
-          taxRate: a.dph, discountPercent: a.sleva, product: R.ref(a.produktId), description: a.popis });
+          taxRate: a.dph, discountPercent: a.sleva, product: a.produktId, description: a.popis });
         const r = await client.put(`/businessCase/${a.opId}/item/`, body);
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ Položka přidána do OP ${a.opId}.`;
@@ -874,7 +874,7 @@ function tools(client) {
       description: 'Smaže všechny položky obchodního případu najednou.',
       inputSchema: { type: 'object', properties: { opId: { type: 'number' } }, required: ['opId'] },
       handler: async (a) => {
-        const r = await client.del(`/businessCase/${a.opId}/item/`);
+        const r = await client.post(`/businessCase/${a.opId}/item/bulkDelete`, {});
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ Všechny položky OP ${a.opId} smazány.`;
       },
