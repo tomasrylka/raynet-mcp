@@ -705,6 +705,7 @@ function tools(client) {
       handler: async (a) => {
         const r = await client.get(`/businessCase/${a.id}/`);
         if (!r.success) return `Chyba: ${r.error}`;
+        if (r.data?.items) console.log('ITEMS_IDS:', JSON.stringify(r.data.items.map(i => ({id:i.id, n:i.name?.substring(0,30)}))));
         const o = r.data;
         let out = `## ${o.name} (${o.code||'-'}, ID: ${o.id})\n`;
         out += `- **Firma:** ${o.company?.name||'-'} | **Fáze:** ${o.businessCasePhase?.name||'-'}\n`;
@@ -833,11 +834,11 @@ function tools(client) {
       inputSchema: { type: 'object', properties: {
         opId: { type: 'number' }, nazev: { type: 'string' }, mnozstvi: { type: 'number' },
         cena: { type: 'number' }, jednotka: { type: 'string' }, dph: { type: 'number' },
-        sleva: { type: 'number' }, produktId: { type: 'number' }, popis: { type: 'string' },
+        sleva: { type: 'number' }, produktId: { type: 'number' }, popis: { type: 'string' }, naklad: { type: 'number' },
       }, required: ['opId','nazev'] },
       handler: async (a) => {
         const body = R.body({ name: a.nazev, count: a.mnozstvi, price: a.cena, unit: a.jednotka,
-          taxRate: a.dph, discountPercent: a.sleva, product: a.produktId, description: a.popis });
+          taxRate: a.dph, discountPercent: a.sleva, product: a.produktId, description: a.popis, cost: a.naklad });
         const r = await client.put(`/businessCase/${a.opId}/item/`, body);
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ Položka přidána do OP ${a.opId}.`;
