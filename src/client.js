@@ -83,5 +83,11 @@ class RaynetClient {
     return id !== undefined ? { id } : undefined;
   }
 }
+async put(path, body) {
+  try {
+    console.log('PUT', path, JSON.stringify(body)); // ← PŘIDEJ
+    return this._parse(await this._request('PUT', path, body));
+  } catch (e) { return { success: false, error: e.message }; }
+}
 
 module.exports = { RaynetClient };
