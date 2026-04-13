@@ -713,7 +713,7 @@ function tools(client) {
         out += `- **Vlastník:** ${o.owner?.fullName||'-'} | **Platnost od:** ${o.validFrom||'-'}\n`;
         if (o.items?.length) {
           out += `\n**Položky (${o.items.length}):**\n`;
-          o.items.forEach(i => out += `  - ${i.name} | ${i.count||'?'} ${i.unit||'ks'} × ${i.price||0} Kč\n`);
+          o.items.forEach(i => out += `  - [${i.id}] ${i.name} | ${i.count||'?'} ${i.unit||'ks'} × ${i.price||0} Kč\n`);
         }
         if (o.customFields && Object.keys(o.customFields).length) {
           out += `\n**Volitelná pole:**\n`;
@@ -875,7 +875,12 @@ function tools(client) {
       description: 'Smaže všechny položky obchodního případu najednou.',
       inputSchema: { type: 'object', properties: { opId: { type: 'number' } }, required: ['opId'] },
       handler: async (a) => {
-        const r = await client.post(`/businessCase/${a.opId}/item/bulkDelete`, {});
+        const r = await (async () => {
+          const det = await client.get(`/businessCase/${a.opId}/`);
+          const ids = (det.data?.items || []).map(i => i.id);
+          if (!ids.length) return { success: true, _empty: true };
+          return client.post(`/businessCase/${a.opId}/item/bulkDelete`, { ids });
+        })();
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ Všechny položky OP ${a.opId} smazány.`;
       },
