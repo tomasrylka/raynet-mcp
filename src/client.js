@@ -59,8 +59,12 @@ class RaynetClient {
   }
 
   async put(path, body) {
-    try { return this._parse(await this._request('PUT', path, body)); }
-    catch (e) { return { success: false, error: e.message }; }
+    try {
+      console.log('RAYNET_PUT:', path, JSON.stringify(body));
+      const result = this._parse(await this._request('PUT', path, body));
+      console.log('RAYNET_PUT_RESP:', JSON.stringify(result));
+      return result;
+    } catch (e) { return { success: false, error: e.message }; }
   }
 
   async post(path, body) {
@@ -82,12 +86,6 @@ class RaynetClient {
   static ref(id) {
     return id !== undefined ? { id } : undefined;
   }
-}
-async put(path, body) {
-  try {
-    console.log('PUT', path, JSON.stringify(body)); // ← PŘIDEJ
-    return this._parse(await this._request('PUT', path, body));
-  } catch (e) { return { success: false, error: e.message }; }
 }
 
 module.exports = { RaynetClient };
