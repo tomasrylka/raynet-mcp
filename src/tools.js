@@ -731,9 +731,9 @@ function tools(client) {
         popis: { type: 'string' }, fazeId: { type: 'number' }, vlastnikId: { type: 'number' },
       }, required: ['nazev','firmaId'] },
       handler: async (a) => {
-        const body = R.body({ name: a.nazev, company: R.ref(a.firmaId), totalAmount: a.hodnota,
+        const body = R.body({ name: a.nazev, company: a.firmaId, totalAmount: a.hodnota,
           probability: a.pravdepodobnost, validFrom: a.platnostOd, description: a.popis,
-          businessCasePhase: R.ref(a.fazeId), owner: R.ref(a.vlastnikId) });
+          businessCasePhase: a.fazeId, owner: a.vlastnikId });
         const r = await client.put('/businessCase/', body);
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ OP "${a.nazev}" vytvořen. ID: ${r.data?.id}`;
@@ -753,8 +753,8 @@ function tools(client) {
       handler: async (a) => {
         const items = (a.polozky||[]).map(p => R.body({ name: p.nazev, count: p.mnozstvi, price: p.cena,
           unit: p.jednotka, taxRate: p.dph, product: R.ref(p.produktId) }));
-        const body = R.body({ name: a.nazev, company: R.ref(a.firmaId), businessCasePhase: R.ref(a.fazeId),
-          validFrom: a.platnostOd, owner: R.ref(a.vlastnikId), items: items.length ? items : undefined });
+        const body = R.body({ name: a.nazev, company: a.firmaId, businessCasePhase: a.fazeId,
+          validFrom: a.platnostOd, owner: a.vlastnikId, items: items.length ? items : undefined });
         const r = await client.put('/businessCase/createWithItems', body);
         if (!r.success) return `Chyba: ${r.error}`;
         return `✅ OP "${a.nazev}" s ${items.length} položkami vytvořen. ID: ${r.data?.id}`;
