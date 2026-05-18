@@ -21,6 +21,25 @@ const client = new RaynetClient(config);
 const allTools = buildTools(client);
 const toolMap = new Map(allTools.map(t => [t.name, t]));
 
+// Fix: vytvor_nabidku - plain integers for company/businessCase (not R.ref objects)
+// Raynet /offer/ endpoint causes ClassCastException when receiving {id:N} instead of plain int
+{
+    const t1 = toolMap.get('vytvor_nabidku');
+    if (t1) t1.handler = async (a) => {
+          const body = {};
+          if (a.nazev)      body.name         = a.nazev;
+          if (a.firmaId)    body.company      = a.firmaId;
+          if (a.opId)       body.businessCase = a.opId;
+          if (a.platnostOd) body.validFrom    = a.platnostOd;
+          if (a.platnostDo) body.validTill    = a.platnostDo;
+          if (a.popis)      body.description  = a.popis;
+          if (a.vlastnikId) body.owner        = RaynetClient.ref(a.vlastnikId);
+          const r = await client.put('/offer/', body);
+          if (!r.success) return `Chyba: ${r.error}`;
+          return `Nabidka "${a.nazev}" vytvorena. ID: ${r.data?.id}`;
+    };
+}
+
 console.log(`🚀 Raynet MCP Server`);
 console.log(`📦 Nástrojů: ${allTools.length}`);
 console.log(`🔗 Instance: ${config.instanceName}`);
