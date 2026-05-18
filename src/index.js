@@ -40,6 +40,25 @@ const toolMap = new Map(allTools.map(t => [t.name, t]));
     };
 }
 
+// Fix: pridej_polozku_nabidky - product as plain integer, not R.ref object
+{
+    const tp = toolMap.get('pridej_polozku_nabidky');
+    if (tp) tp.handler = async (a) => {
+          const body = {};
+          if (a.nazev     != null) body.name            = a.nazev;
+          if (a.mnozstvi  != null) body.count           = a.mnozstvi;
+          if (a.cena      != null) body.price           = a.cena;
+          if (a.jednotka  != null) body.unit            = a.jednotka;
+          if (a.dph       != null) body.taxRate         = a.dph;
+          if (a.sleva     != null) body.discountPercent = a.sleva;
+          if (a.produktId != null) body.product         = a.produktId;
+          if (a.popis     != null) body.description     = a.popis;
+          const r = await client.put(`/offer/${a.nabidkaId}/item/`, body);
+          if (!r.success) return `Chyba: ${r.error}`;
+          return `Polozka pridana do nabidky ${a.nabidkaId}.`;
+    };
+}
+
 console.log(`🚀 Raynet MCP Server`);
 console.log(`📦 Nástrojů: ${allTools.length}`);
 console.log(`🔗 Instance: ${config.instanceName}`);
