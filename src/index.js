@@ -59,6 +59,27 @@ const toolMap = new Map(allTools.map(t => [t.name, t]));
     };
 }
 
+// Fix: detail_nabidky - show item IDs for deletion
+{
+    const td = toolMap.get('detail_nabidky');
+    if (td) td.handler = async (a) => {
+          const r = await client.get(`/offer/${a.id}/`);
+          if (!r.success) return `Chyba: ${r.error}`;
+          const n = r.data;
+          let out = `## ${n.name} (ID: ${n.id})\n`;
+          out += `- Firma: ${n.company?.name||'-'} | OP: ${n.businessCase?.name||'-'}\n`;
+          out += `- Hodnota: ${n.totalAmount||0} Kc | Platnost: ${n.validFrom||'-'}\n`;
+          if (n.items?.length) {
+                  out += `\nPolozky (${n.items.length}):\n`;
+                  n.items.forEach(i => {
+                            const qty = i.count ?? i.quantity ?? 0;
+                            out += `  [ID:${i.id}] ${i.name} | ${qty} ${i.unit||'ks'} x ${i.price||0} Kc\n`;
+                  });
+          }
+          return out;
+    };
+}
+
 console.log(`🚀 Raynet MCP Server`);
 console.log(`📦 Nástrojů: ${allTools.length}`);
 console.log(`🔗 Instance: ${config.instanceName}`);
