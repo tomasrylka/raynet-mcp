@@ -121,7 +121,7 @@ async function handleMcpMessage(body, sessionId) {
     return {
       jsonrpc: '2.0', id,
       result: {
-        protocolVersion: '2024-11-05',
+        protocolVersion: '2025-03-26',
         serverInfo: { name: 'raynet-mcp-cz', version: '1.0.0' },
         capabilities: { tools: {} },
       }
